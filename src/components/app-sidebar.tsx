@@ -1,7 +1,13 @@
 "use client";
 
 import * as React from "react";
-import { SquareTerminal, LayoutDashboard, Database } from "lucide-react";
+import {
+  SquareTerminal,
+  LayoutDashboard,
+  Database,
+  Home,
+  ScrollText,
+} from "lucide-react";
 
 import { NavMain } from "@/components/nav-main";
 import { TeamSwitcher } from "@/components/team-switcher";
@@ -23,8 +29,12 @@ const data = {
     {
       title: "Dashboard",
       url: "/dashboard",
+      icon: Home,
+    },
+    {
+      title: "Collections",
+      url: "/collections",
       icon: LayoutDashboard,
-      isActive: true,
     },
     {
       title: "Entities",
@@ -35,6 +45,11 @@ const data = {
       title: "Playground",
       url: "/playground",
       icon: SquareTerminal,
+    },
+    {
+      title: "Logs",
+      url: "/logs",
+      icon: ScrollText,
     },
   ],
 };
