@@ -12,6 +12,7 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
+import { CreateEntityDialog } from "@/components/create-entity-dialog";
 
 type Item = {
   entityKey: `0x${string}`;
@@ -26,7 +27,7 @@ type Item = {
 export default function EntitiesPage() {
   const [items, setItems] = useState<Item[]>([]);
   const [loading, setLoading] = useState(false);
-  const [type, setType] = useState("note");
+  const [type, setType] = useState("");
   const [search, setSearch] = useState("");
 
   async function load() {
@@ -51,7 +52,7 @@ export default function EntitiesPage() {
       method: "POST",
       headers: { "content-type": "application/json" },
       body: JSON.stringify({
-        type: type || "note",
+        type: type,
         data: { msg: "Hello Golem DB!", t: Date.now() },
         extra: { app: "studio" },
       }),
@@ -90,9 +91,11 @@ export default function EntitiesPage() {
           <Button variant="secondary" onClick={load} disabled={loading}>
             Search
           </Button>
-          <Button onClick={createQuick} disabled={loading}>
-            Create
-          </Button>
+          <CreateEntityDialog
+            defaultType={type || "note"}
+            defaultBTL={1200}
+            onCreated={load}
+          />
         </div>
       </div>
 
