@@ -26,6 +26,7 @@ export async function getGolemClient() {
     Buffer.from(PRIV_HEX, "hex")
   );
   _client = await createClient(CHAIN_ID, key, RPC_URL, WS_URL);
+  console.log("golem client", _client);
   return _client;
 }
 
