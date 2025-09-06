@@ -22,6 +22,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import { PlusIcon } from "lucide-react";
 
 const FormSchema = z.object({
   collection: z.string().min(1, "Collection is required"),
@@ -153,7 +154,12 @@ export function CreateEntityDialog({
     }
   }
 
-  const TriggerEl = trigger ?? <Button>Create</Button>;
+  const TriggerEl = trigger ?? (
+    <Button>
+      Create
+      <PlusIcon className="size-4" />
+    </Button>
+  );
 
   return (
     <Dialog open={open} onOpenChange={setOpen}>

@@ -14,7 +14,7 @@ import {
 } from "@/components/ui/table";
 import { CreateEntityDialog } from "@/components/create-entity-dialog";
 import { EditEntityDialog } from "@/components/edit-entity-dialog";
-import { Trash2Icon } from "lucide-react";
+import { Search, Trash2Icon } from "lucide-react";
 import Link from "next/link";
 import { ExpiryBar } from "@/components/expiry";
 import { Badge } from "@/components/ui/badge";
@@ -145,6 +145,7 @@ export default function EntitiesPage() {
             className="w-80"
           />
           <Button variant="secondary" onClick={load} disabled={loading}>
+            <Search className="size-4" />
             Search
           </Button>
           <CreateEntityDialog
