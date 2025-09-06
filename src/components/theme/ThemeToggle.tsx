@@ -8,7 +8,7 @@ import { ThemeAnimationType } from "@/types/index";
 
 export function ThemeToggle() {
   const { ref, toggleTheme } = useThemeAnimation({
-    duration: 2000,
+    duration: 750,
     animationType: ThemeAnimationType.CIRCLE,
   });
 
