@@ -9,6 +9,7 @@ export type EntityRow = {
     strings: Record<string, string>;
     numbers: Record<string, number>;
   };
+  expiresAtBlock?: number;
 };
 
 type CreateInput = {
@@ -22,6 +23,7 @@ type QueryInput = {
   type?: string;
   q?: string; // raw condition e.g. `version > 0 && id = "..."` (be careful)
   limit?: number; // client-side slice for now
+  includeMeta?: boolean;
 };
 
 type UpdateInput = {
@@ -52,6 +54,30 @@ function safeJsonParse(s: string) {
   } catch {
     return s;
   }
+}
+
+function mergeMeta(row: EntityRow, meta: any | null): EntityRow {
+  if (!meta) return row;
+
+  const strings = { ...row.annotations.strings };
+  const numbers = { ...row.annotations.numbers };
+
+  // bring over annotations from meta
+  if (Array.isArray(meta.stringAnnotations)) {
+    for (const a of meta.stringAnnotations) strings[a.key] = a.value;
+  }
+  if (Array.isArray(meta.numericAnnotations)) {
+    for (const a of meta.numericAnnotations) numbers[a.key] = Number(a.value);
+  }
+
+  return {
+    ...row,
+    annotations: { strings, numbers },
+    expiresAtBlock:
+      typeof meta.expiresAtBlock === "number"
+        ? meta.expiresAtBlock
+        : row.expiresAtBlock,
+  };
 }
 
 /**
@@ -124,6 +150,7 @@ export async function queryEntities({
   type,
   q,
   limit = 100,
+  includeMeta = true,
 }: QueryInput): Promise<EntityRow[]> {
   const client = await getGolemClient();
 
@@ -133,9 +160,18 @@ export async function queryEntities({
 
   const where = parts.join(" && ");
   const list = await client.queryEntities(where);
+  const arr = Array.isArray(list) ? list : [];
 
-  // SDK returns all matches; slice on client for now.
-  return (list as any[]).slice(0, limit).map(toRow);
+  const baseRows = arr.slice(0, limit).map(toRow);
+
+  if (!includeMeta || baseRows.length === 0) return baseRows;
+
+  // Fetch metadata for each entityKey (in parallel, with safety)
+  const metas = await Promise.all(
+    baseRows.map((r) => client.getEntityMetaData(r.entityKey).catch(() => null))
+  );
+
+  return baseRows.map((row, i) => mergeMeta(row, metas[i]));
 }
 
 /**

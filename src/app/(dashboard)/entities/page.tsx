@@ -20,6 +20,7 @@ type Item = {
     strings: Record<string, string>;
     numbers: Record<string, number>;
   };
+  expiresAtBlock?: number;
 };
 
 export default function EntitiesPage() {
@@ -103,6 +104,8 @@ export default function EntitiesPage() {
               <TableHead>Type</TableHead>
               <TableHead>Value</TableHead>
               <TableHead>Version</TableHead>
+              <TableHead>Expires (block)</TableHead>
+
               <TableHead className="w-[100px]">Actions</TableHead>
             </TableRow>
           </TableHeader>
@@ -121,6 +124,8 @@ export default function EntitiesPage() {
                 <TableCell>
                   {it.annotations.numbers["version"] ?? "-"}
                 </TableCell>
+                <TableCell>{it.expiresAtBlock ?? "-"}</TableCell>
+
                 <TableCell>
                   <Button
                     size="sm"

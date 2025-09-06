@@ -7,11 +7,12 @@ export const dynamic = "force-dynamic";
 export async function GET(req: NextRequest) {
   try {
     const url = new URL(req.url);
-    const type = url.searchParams.get("type") ?? undefined; // optional
-    const q = url.searchParams.get("q") ?? undefined; // optional raw query
+    const type = url.searchParams.get("type") ?? undefined;
+    const q = url.searchParams.get("q") ?? undefined;
     const limit = Number(url.searchParams.get("limit") ?? 100);
+    const includeMeta = url.searchParams.get("includeMeta") !== "false"; // default true
 
-    const items = await queryEntities({ type, q, limit });
+    const items = await queryEntities({ type, q, limit, includeMeta });
     return NextResponse.json({ items });
   } catch (err: any) {
     console.error("GET /api/entities failed:", err);
