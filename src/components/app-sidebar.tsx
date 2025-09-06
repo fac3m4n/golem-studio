@@ -46,11 +46,6 @@ const data = {
       url: "/playground",
       icon: SquareTerminal,
     },
-    {
-      title: "Logs",
-      url: "/logs",
-      icon: ScrollText,
-    },
   ],
 };
 
