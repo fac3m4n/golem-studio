@@ -4,7 +4,7 @@ import { deleteEntity, updateEntity } from "@/server/entities";
 export const dynamic = "force-dynamic";
 
 // PATCH /api/entities/:key
-// Body: { data: any, btl?: number, id: string, type?: string, version?: number }
+// Body: { data: any, btl?: number, id: string, collection?: string, version?: number }
 export async function PATCH(
   req: NextRequest,
   { params }: { params: { key: string } }
@@ -22,11 +22,11 @@ export async function PATCH(
 
     const res = await updateEntity({
       entityKey: key,
-      data: body.data ?? {},
-      btl: body.btl,
       id: body.id,
-      type: body.type,
+      collection: body.collection,
       version: body.version,
+      btl: body.btl,
+      data: body.data ?? {},
     });
 
     return NextResponse.json(res);

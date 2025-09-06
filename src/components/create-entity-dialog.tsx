@@ -24,7 +24,7 @@ import {
 } from "@/components/ui/select";
 
 const FormSchema = z.object({
-  type: z.string().min(1, "Type is required"),
+  collection: z.string().min(1, "Collection is required"),
   btl: z.number().int().positive().optional(),
   json: z.string().min(1, "Payload is required"),
   annotations: z.array(
@@ -37,20 +37,21 @@ const FormSchema = z.object({
 
 type Props = {
   trigger?: React.ReactNode;
-  defaultType?: string;
+  defaultCollection?: string;
   defaultBTL?: number;
   onCreated?: () => void; // refresh table
 };
 
 export function CreateEntityDialog({
   trigger,
-  defaultType = "note",
+  defaultCollection = "note",
   defaultBTL = 1200,
   onCreated,
 }: Props) {
   const [open, setOpen] = React.useState(false);
 
-  const [type, setType] = React.useState(defaultType);
+  const [collection, setCollection] = React.useState(defaultCollection);
+
   const [btl, setBtl] = React.useState<number | undefined>(defaultBTL);
   const [json, setJson] = React.useState(
     '{\n  "msg": "Hello Golem DB!",\n  "t": ' + Date.now() + "\n}"
@@ -97,7 +98,7 @@ export function CreateEntityDialog({
   async function submit() {
     // validate form fields
     const parsed = FormSchema.safeParse({
-      type,
+      collection,
       btl,
       json,
       annotations: ann.filter((a) => a.key && a.value),
@@ -136,7 +137,7 @@ export function CreateEntityDialog({
         method: "POST",
         headers: { "content-type": "application/json" },
         body: JSON.stringify({
-          type: parsed.data.type,
+          collection: parsed.data.collection,
           btl: parsed.data.btl,
           data,
           extra,
@@ -168,8 +169,8 @@ export function CreateEntityDialog({
           {/* Type & BTL */}
           <div className="grid grid-cols-2 gap-4">
             <div className="space-y-2">
-              <Label>Collection / Type</Label>
-              <Select value={type} onValueChange={setType}>
+              <Label>Collection</Label>
+              <Select value={collection} onValueChange={setCollection}>
                 <SelectTrigger className="w-full">
                   <SelectValue placeholder="Pick a collection…" />
                 </SelectTrigger>

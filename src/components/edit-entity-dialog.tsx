@@ -43,11 +43,9 @@ export function EditEntityDialog({
 }) {
   const [open, setOpen] = React.useState(false);
 
-  // derive current values
-  const currentType =
-    row.annotations.strings["type"] ??
-    (row.value?.meta?.type as string | undefined) ??
-    "";
+  const currentCollection =
+    row.annotations.strings["collection"] ?? row.value?.meta?.collection ?? "";
+  const [collection, setCollection] = React.useState(currentCollection || "");
   const currentId =
     row.annotations.strings["id"] ??
     (row.value?.meta?.id as string | undefined) ??
@@ -56,7 +54,6 @@ export function EditEntityDialog({
     row.annotations.numbers["version"] ?? row.value?.meta?.version ?? 0
   );
 
-  const [type, setType] = React.useState(currentType || "note");
   const [btl, setBtl] = React.useState<number | undefined>(1200);
   const [json, setJson] = React.useState(
     JSON.stringify(
@@ -110,17 +107,17 @@ export function EditEntityDialog({
       const body = useMetaEnvelope
         ? {
             id: currentId,
-            type,
+            collection,
             version: currentVersion + 1,
             btl,
             data: {
-              meta: { id: currentId, type, version: currentVersion + 1 },
+              meta: { id: currentId, collection, version: currentVersion + 1 },
               data: parsed,
             },
           }
         : {
             id: currentId,
-            type,
+            collection,
             version: currentVersion + 1,
             btl,
             data: parsed,
@@ -161,8 +158,8 @@ export function EditEntityDialog({
         <div className="grid gap-4">
           <div className="grid grid-cols-2 gap-4">
             <div className="space-y-2">
-              <Label>Collection / Type</Label>
-              <Select value={type} onValueChange={setType}>
+              <Label>Collection</Label>
+              <Select value={collection} onValueChange={setCollection}>
                 <SelectTrigger>
                   <SelectValue placeholder="Pick a collection…" />
                 </SelectTrigger>

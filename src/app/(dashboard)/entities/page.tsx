@@ -42,7 +42,7 @@ function textColorOn(bgHex: string) {
 export default function EntitiesPage() {
   const [items, setItems] = useState<Item[]>([]);
   const [loading, setLoading] = useState(false);
-  const [type, setType] = useState("");
+  const [collectionFilter, setCollectionFilter] = useState<string>("");
   const [search, setSearch] = useState("");
 
   const [head, setHead] = useState<number>(0);
@@ -80,7 +80,7 @@ export default function EntitiesPage() {
   async function load() {
     setLoading(true);
     const sp = new URLSearchParams();
-    if (type) sp.set("type", type);
+    if (collectionFilter) sp.set("collection", collectionFilter);
     if (search) sp.set("q", search);
     const res = await fetch(`/api/entities?${sp.toString()}`, {
       cache: "no-store",
@@ -99,7 +99,7 @@ export default function EntitiesPage() {
       method: "POST",
       headers: { "content-type": "application/json" },
       body: JSON.stringify({
-        type: type,
+        collection: collectionFilter,
         data: { msg: "Hello Golem DB!", t: Date.now() },
         extra: { app: "studio" },
       }),
@@ -124,9 +124,9 @@ export default function EntitiesPage() {
         <h1 className="text-xl font-semibold">Entities</h1>
         <div className="flex items-center gap-2">
           <Input
-            placeholder="type (note,ticket,…)"
-            value={type}
-            onChange={(e) => setType(e.target.value)}
+            placeholder="collection (note,ticket,…)"
+            value={collectionFilter}
+            onChange={(e) => setCollectionFilter(e.target.value)}
             className="w-44"
           />
           <Input
@@ -139,7 +139,7 @@ export default function EntitiesPage() {
             Search
           </Button>
           <CreateEntityDialog
-            defaultType={type || "note"}
+            defaultCollection={collectionFilter || "note"}
             defaultBTL={1200}
             onCreated={load}
           />
@@ -151,7 +151,7 @@ export default function EntitiesPage() {
           <TableHeader>
             <TableRow>
               <TableHead>Key</TableHead>
-              <TableHead>Type</TableHead>
+              <TableHead>Collection</TableHead>
               <TableHead>Value</TableHead>
               <TableHead>Version</TableHead>
               <TableHead>Expires (block)</TableHead>
@@ -174,8 +174,9 @@ export default function EntitiesPage() {
                 </TableCell>
                 <TableCell>
                   {(() => {
-                    const type = it.annotations.strings["type"] ?? "-";
-                    const color = typeColor[type] ?? "#e5e7eb"; // fallback gray-200
+                    const collectionName =
+                      it.annotations.strings["collection"] ?? "-";
+                    const color = typeColor[collectionName] ?? "#e5e7eb"; // fallback gray-200
                     const fg = textColorOn(color);
                     return (
                       <Badge
@@ -183,9 +184,9 @@ export default function EntitiesPage() {
                           backgroundColor: color,
                           color: fg,
                         }}
-                        title={type}
+                        title={collectionName}
                       >
-                        {type}
+                        {collectionName}
                       </Badge>
                     );
                   })()}

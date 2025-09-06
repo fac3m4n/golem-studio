@@ -7,12 +7,13 @@ export const dynamic = "force-dynamic";
 export async function GET(req: NextRequest) {
   try {
     const url = new URL(req.url);
-    const type = url.searchParams.get("type") ?? undefined;
+    const collection = url.searchParams.get("collection") ?? undefined;
     const q = url.searchParams.get("q") ?? undefined;
     const limit = Number(url.searchParams.get("limit") ?? 100);
     const includeMeta = url.searchParams.get("includeMeta") !== "false"; // default true
 
-    const items = await queryEntities({ type, q, limit, includeMeta });
+    const items = await queryEntities({ collection, q, limit, includeMeta });
+
     return NextResponse.json({ items });
   } catch (err: any) {
     console.error("GET /api/entities failed:", err);
@@ -25,17 +26,17 @@ export async function GET(req: NextRequest) {
 
 export async function POST(req: NextRequest) {
   try {
-    const body = await req.json(); // { type: string, data: any, btl?: number, extra?: Record<string,string|number> }
+    const body = await req.json(); // { collection: string, data: any, btl?: number, extra?: Record<string,string|number> }
 
-    if (!body?.type) {
+    if (!body?.collection) {
       return NextResponse.json(
-        { error: "Field 'type' is required." },
+        { error: "Field 'collection' is required." },
         { status: 400 }
       );
     }
 
     const out = await createEntity({
-      type: body.type,
+      collection: body.collection,
       data: body.data ?? {},
       btl: body.btl,
       extra: body.extra,

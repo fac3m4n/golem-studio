@@ -13,16 +13,16 @@ export type EntityRow = {
 };
 
 type CreateInput = {
-  type: string; // e.g. "note" | "ticket" | ...
-  data: unknown; // JSON-serializable
-  btl?: number; // blocks-to-live (TTL). ~2s per block
-  extra?: Record<string, string | number>; // additional annotations for querying
+  collection: string;
+  data: unknown;
+  btl?: number;
+  extra?: Record<string, string | number>;
 };
 
 type QueryInput = {
-  type?: string;
-  q?: string; // raw condition e.g. `version > 0 && id = "..."` (be careful)
-  limit?: number; // client-side slice for now
+  collection?: string;
+  q?: string;
+  limit?: number;
   includeMeta?: boolean;
 };
 
@@ -30,9 +30,9 @@ type UpdateInput = {
   entityKey: `0x${string}`;
   data: unknown;
   btl?: number;
-  id: string; // keep id annotation stable
-  type?: string; // (optional) update type annotation
-  version?: number; // bump version (numeric)
+  id: string;
+  collection?: string;
+  version?: number;
 };
 
 function bytesToString(x: unknown) {
@@ -99,10 +99,27 @@ function toRow(e: any): EntityRow {
   );
 
   const raw = bytesToString(e.storageValue);
+  const value = safeJsonParse(raw);
+
+  // --- derive collection if missing ---
+  const derivedCollection =
+    strings["collection"] ?? (value?.meta?.collection as string | undefined);
+  if (derivedCollection) {
+    strings["collection"] = derivedCollection;
+  }
+
+  // also keep version aligned if present only in payload
+  const derivedVersion =
+    numbers["version"] ?? (value?.meta?.version as number | undefined);
+  if (derivedVersion !== undefined) {
+    numbers["version"] = derivedVersion;
+  }
+
   return {
     entityKey: e.entityKey as `0x${string}`,
-    value: safeJsonParse(raw),
+    value,
     annotations: { strings, numbers },
+    expiresAtBlock: e.expiresAtBlock, // if you included from metadata
   };
 }
 
@@ -115,8 +132,8 @@ export async function createEntity(input: CreateInput) {
   const id = randomUUID();
 
   const stringAnnotations = [
-    new Annotation("collection", DEFAULT_COLLECTION),
-    new Annotation("type", input.type),
+    new Annotation("collection", input.collection),
+    new Annotation("app", "studio"),
     new Annotation("id", id),
   ];
   const numericAnnotations = [new Annotation("version", 1)];
@@ -128,10 +145,15 @@ export async function createEntity(input: CreateInput) {
     }
   }
 
+  const payload = {
+    meta: { id, collection: input.collection, version: 1, app: "studio" },
+    data: input.data ?? {},
+  };
+
   const creates: GolemBaseCreate[] = [
     {
-      data: encoder.encode(JSON.stringify(input.data ?? {})),
-      btl: input.btl ?? 1200, // ~40 minutes
+      data: encoder.encode(JSON.stringify(payload)),
+      btl: input.btl ?? 1200,
       stringAnnotations,
       numericAnnotations,
     },
@@ -147,19 +169,19 @@ export async function createEntity(input: CreateInput) {
  * Example q: `id = "..." && version >= 2`
  */
 export async function queryEntities({
-  type,
+  collection,
   q,
   limit = 100,
   includeMeta = true,
-}: QueryInput): Promise<EntityRow[]> {
+}: QueryInput) {
   const client = await getGolemClient();
 
-  const parts: string[] = [`collection = "${DEFAULT_COLLECTION}"`];
-  if (type) parts.push(`type = "${type}"`);
+  const parts: string[] = [];
+  if (collection) parts.push(`collection = "${collection}"`);
   if (q) parts.push(q);
-
-  const where = parts.join(" && ");
+  const where = parts.length ? parts.join(" && ") : `app = "studio"`; // sensible default: show Studio-created
   const list = await client.queryEntities(where);
+
   const arr = Array.isArray(list) ? list : [];
 
   const baseRows = arr.slice(0, limit).map(toRow);
@@ -182,20 +204,31 @@ export async function updateEntity(input: UpdateInput) {
   const client = await getGolemClient();
 
   const stringAnnotations = [
-    new Annotation("collection", DEFAULT_COLLECTION),
     new Annotation("id", input.id),
+    new Annotation("app", "studio"),
   ];
-  if (input.type) stringAnnotations.push(new Annotation("type", input.type));
+  if (input.collection)
+    stringAnnotations.push(new Annotation("collection", input.collection));
 
   const numericAnnotations = [];
-  if (typeof input.version === "number") {
+  if (typeof input.version === "number")
     numericAnnotations.push(new Annotation("version", input.version));
-  }
+
+  // keep meta envelope in payload
+  const payload = {
+    meta: {
+      id: input.id,
+      collection: input.collection,
+      version: input.version,
+      app: "studio",
+    },
+    data: input.data ?? {},
+  };
 
   const updates: GolemBaseUpdate[] = [
     {
       entityKey: input.entityKey,
-      data: encoder.encode(JSON.stringify(input.data ?? {})),
+      data: encoder.encode(JSON.stringify(payload)),
       btl: input.btl ?? 1200,
       stringAnnotations,
       numericAnnotations,
