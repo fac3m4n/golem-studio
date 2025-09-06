@@ -145,14 +145,9 @@ export async function createEntity(input: CreateInput) {
     }
   }
 
-  const payload = {
-    meta: { id, collection: input.collection, version: 1, app: "studio" },
-    data: input.data ?? {},
-  };
-
   const creates: GolemBaseCreate[] = [
     {
-      data: encoder.encode(JSON.stringify(payload)),
+      data: encoder.encode(JSON.stringify(input.data)),
       btl: input.btl ?? 1200,
       stringAnnotations,
       numericAnnotations,
@@ -214,21 +209,10 @@ export async function updateEntity(input: UpdateInput) {
   if (typeof input.version === "number")
     numericAnnotations.push(new Annotation("version", input.version));
 
-  // keep meta envelope in payload
-  const payload = {
-    meta: {
-      id: input.id,
-      collection: input.collection,
-      version: input.version,
-      app: "studio",
-    },
-    data: input.data ?? {},
-  };
-
   const updates: GolemBaseUpdate[] = [
     {
       entityKey: input.entityKey,
-      data: encoder.encode(JSON.stringify(payload)),
+      data: encoder.encode(JSON.stringify(input.data)),
       btl: input.btl ?? 1200,
       stringAnnotations,
       numericAnnotations,

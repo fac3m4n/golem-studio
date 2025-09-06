@@ -44,7 +44,7 @@ type SavedQuery = { id: string; name: string; query: string; ts: number };
 const BASE_FIELDS = ["app", "collection", "id"];
 const NUM_FIELDS = ["version"];
 const OPERATORS = ["=", ">", "<", "&&", "||"];
-const START_QUERY = 'app = "entities" && collection = "note"';
+const START_QUERY = 'app = "studio" && collection = "users"';
 const LS_KEY = "golemStudio.savedQueries";
 
 // ---------- LocalStorage helpers ----------
@@ -102,7 +102,7 @@ function nl2query(s: string): string {
   const vlt = t.match(/version\s*<\s*(\d+)/);
   const veq = t.match(/version\s*=\s*(\d+)/);
 
-  const parts: string[] = [`collection = "entities"`];
+  const parts: string[] = [`collection = "users"`];
   if (type) parts.push(`type = "${type}"`);
   if (vgt) parts.push(`version > ${vgt[1]}`);
   if (vlt) parts.push(`version < ${vlt[1]}`);
@@ -148,7 +148,7 @@ export default function QueryPlayground() {
         const res = await fetch(
           "/api/entities?" +
             new URLSearchParams({
-              q: 'collection = "entities"',
+              q: 'collection = "users"',
               limit: "200",
             }).toString(),
           { cache: "no-store" }
@@ -284,7 +284,7 @@ export default function QueryPlayground() {
         const dynVersionValues = versions.map((v) =>
           mkValue(String(v), "Known version")
         );
-        const commonValues = [mkValue(`"entities"`, "Common collection name")];
+        const commonValues = [mkValue(`"users"`, "Common collection name")];
         const collectionNames = collections.map((c) => c.name);
 
         const valueSuggestions = [

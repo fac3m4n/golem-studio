@@ -18,6 +18,17 @@ import { Trash2Icon } from "lucide-react";
 import Link from "next/link";
 import { ExpiryBar } from "@/components/expiry";
 import { Badge } from "@/components/ui/badge";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogTrigger,
+} from "@/components/ui/alert-dialog";
 
 type Item = {
   entityKey: `0x${string}`;
@@ -110,8 +121,6 @@ export default function EntitiesPage() {
   }
 
   async function remove(key: string) {
-    const ok = confirm("Delete this entity?");
-    if (!ok) return;
     const res = await fetch(`/api/entities/${key}`, { method: "DELETE" });
     if (!res.ok) return toast.error("Delete failed");
     toast.success("Entity deleted");
@@ -210,13 +219,38 @@ export default function EntitiesPage() {
                 <TableCell className="flex items-center gap-2">
                   <EditEntityDialog row={it} onUpdated={load} />
 
-                  <Button
-                    size="icon"
-                    variant="ghost"
-                    onClick={() => remove(it.entityKey)}
-                  >
-                    <Trash2Icon className="size-4" color="red" />
-                  </Button>
+                  <AlertDialog>
+                    <AlertDialogTrigger asChild>
+                      <Button size="icon" variant="ghost">
+                        <Trash2Icon className="size-4" color="red" />
+                      </Button>
+                    </AlertDialogTrigger>
+                    <AlertDialogContent>
+                      <AlertDialogHeader>
+                        <AlertDialogTitle>Delete Entity</AlertDialogTitle>
+                        <AlertDialogDescription>
+                          Are you sure you want to delete this entity? This
+                          action cannot be undone.
+                          <br />
+                          <br />
+                          <strong>Entity Key:</strong>{" "}
+                          {it.entityKey.slice(0, 6)}...{it.entityKey.slice(62)}
+                          <br />
+                          <strong>Collection:</strong>{" "}
+                          {it.annotations.strings["collection"] ?? "-"}
+                        </AlertDialogDescription>
+                      </AlertDialogHeader>
+                      <AlertDialogFooter>
+                        <AlertDialogCancel>Cancel</AlertDialogCancel>
+                        <AlertDialogAction
+                          onClick={() => remove(it.entityKey)}
+                          className="bg-red-600 hover:bg-red-700"
+                        >
+                          Delete
+                        </AlertDialogAction>
+                      </AlertDialogFooter>
+                    </AlertDialogContent>
+                  </AlertDialog>
                 </TableCell>
               </TableRow>
             ))}
