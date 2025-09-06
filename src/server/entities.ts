@@ -33,21 +33,17 @@ type UpdateInput = {
   version?: number; // bump version (numeric)
 };
 
-/**
- * Normalize SDK entity to Studio row.
- */
-function toRow(e: any): EntityRow {
-  const strings = Object.fromEntries(
-    e.stringAnnotations.map((a: any) => [a.key, a.value])
-  );
-  const numbers = Object.fromEntries(
-    e.numericAnnotations.map((a: any) => [a.key, a.value])
-  );
-  return {
-    entityKey: e.entityKey,
-    value: safeJsonParse(decoder.decode(e.storageValue)),
-    annotations: { strings, numbers },
-  };
+function bytesToString(x: unknown) {
+  if (typeof x === "string") return x;
+  // Node Buffer or Uint8Array from SDK
+  if (x && typeof x === "object" && "byteLength" in (x as any)) {
+    return decoder.decode(x as Uint8Array);
+  }
+  try {
+    return String(x ?? "");
+  } catch {
+    return "";
+  }
 }
 
 function safeJsonParse(s: string) {
@@ -56,6 +52,32 @@ function safeJsonParse(s: string) {
   } catch {
     return s;
   }
+}
+
+/**
+ * Normalize SDK entity to Studio row.
+ */
+function toRow(e: any): EntityRow {
+  const stringAnns = Array.isArray(e.stringAnnotations)
+    ? e.stringAnnotations
+    : [];
+  const numericAnns = Array.isArray(e.numericAnnotations)
+    ? e.numericAnnotations
+    : [];
+
+  const strings = Object.fromEntries(
+    stringAnns.map((a: any) => [a.key, a.value])
+  );
+  const numbers = Object.fromEntries(
+    numericAnns.map((a: any) => [a.key, a.value])
+  );
+
+  const raw = bytesToString(e.storageValue);
+  return {
+    entityKey: e.entityKey as `0x${string}`,
+    value: safeJsonParse(raw),
+    annotations: { strings, numbers },
+  };
 }
 
 /**
