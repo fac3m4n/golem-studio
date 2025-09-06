@@ -11,6 +11,7 @@ import {
   CardTitle,
 } from "@/components/ui/card";
 import { CreateCollectionDialog } from "@/components/create-collection-dialog";
+import { Trash2Icon } from "lucide-react";
 
 type Collection = {
   id: string;
@@ -73,11 +74,11 @@ export default function CollectionsPage() {
                   {c.id.slice(0, 8)}…
                 </span>
                 <Button
-                  variant="destructive"
-                  size="sm"
+                  variant="outline"
+                  size="icon"
                   onClick={() => remove(c.id)}
                 >
-                  Delete
+                  <Trash2Icon className="size-4" color="red" />
                 </Button>
               </CardFooter>
             </Card>
