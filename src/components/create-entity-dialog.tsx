@@ -15,6 +15,13 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { toast } from "sonner";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 
 const FormSchema = z.object({
   type: z.string().min(1, "Type is required"),
@@ -54,6 +61,16 @@ export function CreateEntityDialog({
 
   const [jsonError, setJsonError] = React.useState<string | null>(null);
   const [submitting, setSubmitting] = React.useState(false);
+
+  const [collections, setCollections] = React.useState<
+    { id: string; name: string }[]
+  >([]);
+  React.useEffect(() => {
+    fetch("/api/collections", { cache: "no-store" })
+      .then((r) => r.json())
+      .then((j) => setCollections(j.items ?? []))
+      .catch(() => setCollections([]));
+  }, []);
 
   // live JSON validation
   React.useEffect(() => {
@@ -151,13 +168,19 @@ export function CreateEntityDialog({
           {/* Type & BTL */}
           <div className="grid grid-cols-2 gap-4">
             <div className="space-y-2">
-              <Label htmlFor="type">Type</Label>
-              <Input
-                id="type"
-                placeholder="note, ticket, ..."
-                value={type}
-                onChange={(e) => setType(e.target.value)}
-              />
+              <Label>Collection / Type</Label>
+              <Select value={type} onValueChange={setType}>
+                <SelectTrigger className="w-full">
+                  <SelectValue placeholder="Pick a collection…" />
+                </SelectTrigger>
+                <SelectContent>
+                  {collections.map((c) => (
+                    <SelectItem key={c.id} value={c.name}>
+                      {c.name}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
             </div>
             <div className="space-y-2">
               <Label htmlFor="btl">BTL (blocks)</Label>
