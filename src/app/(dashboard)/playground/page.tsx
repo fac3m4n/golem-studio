@@ -41,10 +41,10 @@ type Collection = {
 type SavedQuery = { id: string; name: string; query: string; ts: number };
 
 // ---------- Constants ----------
-const BASE_FIELDS = ["app", "collection", "type", "id"];
+const BASE_FIELDS = ["app", "collection", "id"];
 const NUM_FIELDS = ["version"];
 const OPERATORS = ["=", ">", "<", "&&", "||"];
-const START_QUERY = 'collection = "entities" && type = "note"';
+const START_QUERY = 'app = "entities" && collection = "note"';
 const LS_KEY = "golemStudio.savedQueries";
 
 // ---------- LocalStorage helpers ----------
@@ -157,7 +157,7 @@ export default function QueryPlayground() {
         const tset = new Set<string>();
         const vset = new Set<number>();
         for (const r of j.items ?? []) {
-          const t = r?.annotations?.strings?.type;
+          const t = r?.annotations?.strings?.collection;
           if (t) tset.add(String(t));
           const v = r?.annotations?.numbers?.version;
           if (typeof v === "number") vset.add(v);
@@ -243,7 +243,7 @@ export default function QueryPlayground() {
       tokenizer: {
         root: [
           [/\b(and|or)\b/i, "operator"],
-          [/\b(collection|type|id|version)\b/, "key"],
+          [/\b(collection|id|version)\b/, "key"],
           [/\s(=|&&|\|\||>|<)\s/, "operator"],
           [/".*?"/, "string"],
           [/\d+/, "number"],
@@ -271,23 +271,26 @@ export default function QueryPlayground() {
         const suggestValues =
           last === "=" ||
           last === '"' ||
-          /(\btype|\bid|\bcollection|\bversion)\s*=\s*$/i.test(text);
+          /(\bcollection|\bid|\bversion)\s*=\s*$/i.test(text);
 
         const fieldSuggestions = [
           ...BASE_FIELDS.map((k) => mkKeyword(k, "field")),
           ...NUM_FIELDS.map((k) => mkKeyword(k, "number field")),
         ];
         const opSuggestions = OPERATORS.map((op) => mkOp(op));
-        const dynTypeValues = types.map((n) => mkValue(`"${n}"`, "Known type"));
+        const dynCollectionValues = types.map((n) =>
+          mkValue(`"${n}"`, "Known collection")
+        );
         const dynVersionValues = versions.map((v) =>
           mkValue(String(v), "Known version")
         );
         const commonValues = [mkValue(`"entities"`, "Common collection name")];
+        const collectionNames = collections.map((c) => c.name);
 
         const valueSuggestions = [
-          ...commonValues,
-          ...dynTypeValues,
-          ...dynVersionValues,
+          ...collectionNames.map((n) => mkValue(`"${n}"`, "Collection")),
+          ...versions.map((v) => mkValue(String(v), "Known version")),
+          mkValue(`"studio"`, "App tag"), // handy
         ];
 
         const suggestions = suggestValues
@@ -447,7 +450,7 @@ export default function QueryPlayground() {
               <TableHeader>
                 <TableRow>
                   <TableHead>Key</TableHead>
-                  <TableHead>Type</TableHead>
+                  <TableHead>Collection</TableHead>
                   <TableHead>Version</TableHead>
                   <TableHead>Value</TableHead>
                 </TableRow>
@@ -459,7 +462,7 @@ export default function QueryPlayground() {
                       {r.entityKey.slice(0, 12)}…
                     </TableCell>
                     <TableCell>
-                      {r.annotations.strings["type"] ?? "-"}
+                      {r.annotations.strings["collection"] ?? "-"}
                     </TableCell>
                     <TableCell>
                       {r.annotations.numbers["version"] ?? "-"}
