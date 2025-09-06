@@ -113,7 +113,7 @@ export default function EntitiesPage() {
             {items.map((it) => (
               <TableRow key={it.entityKey}>
                 <TableCell className="font-mono text-xs">
-                  {it.entityKey.slice(0, 12)}…
+                  {it.entityKey}
                 </TableCell>
                 <TableCell>{it.annotations.strings["type"] ?? "-"}</TableCell>
                 <TableCell>
