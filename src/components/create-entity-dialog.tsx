@@ -56,9 +56,7 @@ export function CreateEntityDialog({
   const [json, setJson] = React.useState(
     '{\n  "msg": "Hello Golem DB!",\n  "t": ' + Date.now() + "\n}"
   );
-  const [ann, setAnn] = React.useState<{ key: string; value: string }[]>([
-    { key: "app", value: "studio" },
-  ]);
+  const [ann, setAnn] = React.useState<{ key: string; value: string }[]>([]);
 
   const [jsonError, setJsonError] = React.useState<string | null>(null);
   const [submitting, setSubmitting] = React.useState(false);

@@ -424,9 +424,6 @@ export default function QueryPlayground() {
               {stats.ms ? `• ${stats.ms} ms` : ""}
             </div>
           </div>
-
-          {/* NL→Query helper (demo) */}
-          <NLHelper onUseQuery={(q) => setQuery(q)} />
         </CardContent>
       </Card>
 
@@ -490,52 +487,5 @@ export default function QueryPlayground() {
         </CardContent>
       </Card>
     </section>
-  );
-}
-
-// ---------- NL Helper component ----------
-function NLHelper({ onUseQuery }: { onUseQuery: (q: string) => void }) {
-  const [nl, setNl] = React.useState("");
-  const [out, setOut] = React.useState("");
-
-  function translate() {
-    const q = nl2query(nl);
-    setOut(q);
-  }
-  function useQ() {
-    if (out) onUseQuery(out);
-  }
-
-  return (
-    <div className="rounded-md border p-3">
-      <div className="mb-2 text-sm font-medium">
-        Natural language → query (demo)
-      </div>
-      <div className="flex flex-col gap-2 sm:flex-row">
-        <Input
-          placeholder='e.g., "notes with version > 1" or "ticket id: 1234"'
-          value={nl}
-          onChange={(e) => setNl(e.target.value)}
-        />
-        <div className="flex gap-2">
-          <Button variant="secondary" onClick={translate}>
-            Translate
-          </Button>
-          <Button onClick={useQ} disabled={!out}>
-            Use
-          </Button>
-        </div>
-      </div>
-      {!!out && (
-        <>
-          <div className="mt-2 rounded bg-muted p-2 font-mono text-xs">
-            {out}
-          </div>
-          <p className="mt-1 text-xs text-muted-foreground">
-            Rule-based demo (offline). Swap this with an AI call later.
-          </p>
-        </>
-      )}
-    </div>
   );
 }
