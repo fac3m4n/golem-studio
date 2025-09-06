@@ -13,6 +13,10 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { CreateEntityDialog } from "@/components/create-entity-dialog";
+import { EditEntityDialog } from "@/components/edit-entity-dialog";
+import { Trash2Icon } from "lucide-react";
+import Link from "next/link";
+import { ExpiryBar } from "@/components/expiry";
 
 type Item = {
   entityKey: `0x${string}`;
@@ -29,6 +33,22 @@ export default function EntitiesPage() {
   const [loading, setLoading] = useState(false);
   const [type, setType] = useState("");
   const [search, setSearch] = useState("");
+
+  const [head, setHead] = useState<number>(0);
+
+  async function fetchHead() {
+    try {
+      const res = await fetch("/api/chain", { cache: "no-store" });
+      const j = await res.json();
+      if (j?.currentBlock) setHead(j.currentBlock);
+    } catch {}
+  }
+
+  useEffect(() => {
+    fetchHead();
+    const t = setInterval(fetchHead, 10000); // every 10s; adjust as you like
+    return () => clearInterval(t);
+  }, []);
 
   async function load() {
     setLoading(true);
@@ -116,7 +136,14 @@ export default function EntitiesPage() {
             {items.map((it) => (
               <TableRow key={it.entityKey}>
                 <TableCell className="font-mono text-xs">
-                  {it.entityKey}
+                  <Link
+                    href={`https://explorer.ethwarsaw.holesky.golemdb.io/entity/${it.entityKey}`}
+                    className="text-blue-500 hover:underline"
+                    target="_blank"
+                  >
+                    {it.entityKey.substring(0, 6)}...
+                    {it.entityKey.substring(62)}
+                  </Link>
                 </TableCell>
                 <TableCell>{it.annotations.strings["type"] ?? "-"}</TableCell>
                 <TableCell>
@@ -127,15 +154,23 @@ export default function EntitiesPage() {
                 <TableCell>
                   {it.annotations.numbers["version"] ?? "-"}
                 </TableCell>
-                <TableCell>{it.expiresAtBlock ?? "-"}</TableCell>
-
                 <TableCell>
+                  {" "}
+                  <ExpiryBar
+                    expiresAtBlock={it.expiresAtBlock}
+                    currentBlock={head}
+                  />
+                </TableCell>
+
+                <TableCell className="flex items-center gap-2">
+                  <EditEntityDialog row={it} onUpdated={load} />
+
                   <Button
-                    size="sm"
-                    variant="destructive"
+                    size="icon"
+                    variant="ghost"
                     onClick={() => remove(it.entityKey)}
                   >
-                    Delete
+                    <Trash2Icon className="size-4" color="red" />
                   </Button>
                 </TableCell>
               </TableRow>
