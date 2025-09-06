@@ -5,23 +5,19 @@ import { z } from "zod";
 export const dynamic = "force-dynamic";
 
 export async function GET() {
-  try {
-    return NextResponse.json({ items: listCollections() });
-  } catch (e: any) {
-    return NextResponse.json(
-      { error: e?.message ?? "failed" },
-      { status: 500 }
-    );
-  }
+  return NextResponse.json({ items: listCollections() });
 }
 
-const Body = z.object({ name: z.string().min(1).max(64) });
+const hexColor = z
+  .string()
+  .regex(/^#([0-9a-fA-F]{6}|[0-9a-fA-F]{3})$/, "Invalid color");
+const Body = z.object({ name: z.string().min(1).max(64), color: hexColor });
 
 export async function POST(req: NextRequest) {
   try {
     const json = await req.json();
-    const { name } = Body.parse(json);
-    const created = createCollection(name.trim());
+    const { name, color } = Body.parse(json);
+    const created = createCollection(name.trim(), color);
     return NextResponse.json(created);
   } catch (e: any) {
     return NextResponse.json(

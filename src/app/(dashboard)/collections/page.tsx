@@ -12,7 +12,12 @@ import {
 } from "@/components/ui/card";
 import { CreateCollectionDialog } from "@/components/create-collection-dialog";
 
-type Collection = { id: string; name: string; createdAt: number };
+type Collection = {
+  id: string;
+  name: string;
+  color: string;
+  createdAt: number;
+};
 
 export default function CollectionsPage() {
   const [items, setItems] = React.useState<Collection[]>([]);
@@ -55,6 +60,10 @@ export default function CollectionsPage() {
             <Card key={c.id} className="flex flex-col">
               <CardHeader>
                 <CardTitle className="text-lg">{c.name}</CardTitle>
+                <div
+                  className="mt-1 h-2 w-12 rounded-full"
+                  style={{ backgroundColor: c.color }}
+                />
               </CardHeader>
               <CardContent className="text-sm text-muted-foreground">
                 Created: {format(c.createdAt, "yyyy-MM-dd HH:mm")}

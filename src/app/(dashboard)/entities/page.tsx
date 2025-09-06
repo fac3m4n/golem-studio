@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -17,6 +17,7 @@ import { EditEntityDialog } from "@/components/edit-entity-dialog";
 import { Trash2Icon } from "lucide-react";
 import Link from "next/link";
 import { ExpiryBar } from "@/components/expiry";
+import { Badge } from "@/components/ui/badge";
 
 type Item = {
   entityKey: `0x${string}`;
@@ -27,6 +28,16 @@ type Item = {
   };
   expiresAtBlock?: number;
 };
+
+function textColorOn(bgHex: string) {
+  // simple luminance check; assumes #rrggbb
+  const hex = bgHex.replace("#", "");
+  const r = parseInt(hex.substring(0, 2), 16);
+  const g = parseInt(hex.substring(2, 4), 16);
+  const b = parseInt(hex.substring(4, 6), 16);
+  const luminance = 0.299 * r + 0.587 * g + 0.114 * b;
+  return luminance > 160 ? "#111827" /* slate-900 */ : "#ffffff";
+}
 
 export default function EntitiesPage() {
   const [items, setItems] = useState<Item[]>([]);
@@ -49,6 +60,22 @@ export default function EntitiesPage() {
     const t = setInterval(fetchHead, 10000); // every 10s; adjust as you like
     return () => clearInterval(t);
   }, []);
+
+  const [collections, setCollections] = useState<
+    { id: string; name: string; color: string }[]
+  >([]);
+  useEffect(() => {
+    fetch("/api/collections", { cache: "no-store" })
+      .then((r) => r.json())
+      .then((j) => setCollections(j.items ?? []))
+      .catch(() => {});
+  }, []);
+
+  const typeColor = useMemo(() => {
+    const map: Record<string, string> = {};
+    for (const c of collections) map[c.name] = c.color;
+    return map;
+  }, [collections]);
 
   async function load() {
     setLoading(true);
@@ -145,7 +172,24 @@ export default function EntitiesPage() {
                     {it.entityKey.substring(62)}
                   </Link>
                 </TableCell>
-                <TableCell>{it.annotations.strings["type"] ?? "-"}</TableCell>
+                <TableCell>
+                  {(() => {
+                    const type = it.annotations.strings["type"] ?? "-";
+                    const color = typeColor[type] ?? "#e5e7eb"; // fallback gray-200
+                    const fg = textColorOn(color);
+                    return (
+                      <Badge
+                        style={{
+                          backgroundColor: color,
+                          color: fg,
+                        }}
+                        title={type}
+                      >
+                        {type}
+                      </Badge>
+                    );
+                  })()}
+                </TableCell>
                 <TableCell>
                   <pre className="max-h-40 overflow-auto whitespace-pre-wrap text-xs">
                     {JSON.stringify(it.value, null, 2)}

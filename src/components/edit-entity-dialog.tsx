@@ -71,7 +71,7 @@ export function EditEntityDialog({
 
   // collections for Select
   const [collections, setCollections] = React.useState<
-    { id: string; name: string }[]
+    { id: string; name: string; color: string }[]
   >([]);
   React.useEffect(() => {
     fetch("/api/collections", { cache: "no-store" })
@@ -169,6 +169,11 @@ export function EditEntityDialog({
                 <SelectContent>
                   {collections.map((c) => (
                     <SelectItem key={c.id} value={c.name}>
+                      <span
+                        className="mr-2 inline-block h-3 w-3 rounded-full align-middle"
+                        style={{ backgroundColor: c.color }}
+                      />
+
                       {c.name}
                     </SelectItem>
                   ))}
