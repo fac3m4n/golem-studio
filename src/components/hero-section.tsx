@@ -5,8 +5,8 @@ import { Button } from "@/components/ui/button";
 import { GithubIcon, Menu, X } from "lucide-react";
 
 const menuItems = [
-  { name: "Features", href: "#" },
-  { name: "About", href: "#" },
+  { name: "Features", href: "https://github.com/fac3m4n/golem-studio" },
+  { name: "About", href: "https://github.com/fac3m4n/golem-studio" },
 ];
 
 export const HeroSection = () => {
@@ -33,8 +33,6 @@ export const HeroSection = () => {
                   />
                   <span className="text-2xl font-bold">Studio</span>
                 </Link>
-
-                {/* <UserButton /> */}
 
                 <button
                   onClick={() => setMenuState(!menuState)}
@@ -64,7 +62,7 @@ export const HeroSection = () => {
 
                 <div className="flex w-full flex-col space-y-3 sm:flex-row sm:gap-3 sm:space-y-0 md:w-fit lg:border-l lg:pl-6">
                   <Button asChild variant="outline" size="sm">
-                    <Link href="https://github.com/golem-studio">
+                    <Link href="https://github.com/fac3m4n/golem-studio">
                       <GithubIcon className="size-4" />
                       <span>Github</span>
                     </Link>
@@ -108,7 +106,7 @@ export const HeroSection = () => {
                 size="lg"
                 className="animate-bounce hover:animate-none"
               >
-                <Link href="#">
+                <Link href="/dashboard">
                   <span className="btn-label">Explore Studio</span>
                 </Link>
               </Button>
