@@ -1,8 +1,4 @@
-# ETHWarsaw Business Model Bounty Submission
-
-**Project:** Golem DB Studio
-
----
+# GolemDB Studio - ETHWarsaw Business Model Bounty Submission
 
 ## **Value Proposition**
 
