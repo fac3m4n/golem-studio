@@ -62,7 +62,7 @@ bun build
 bun start
 ```
 
-## Roadmap
+## 🧭 Roadmap
 
 - Wallet Connect & SIWE
   - Replace env-based private key with per-user wallet login.
@@ -74,3 +74,28 @@ bun start
 - CSV import, export, diffing, and merge support.
   - Multi-user Roles
 - Admins, developers, and viewers with different permissions.
+
+## 💰 Monetization
+
+- Subscription Tiers
+  - Free: limited collections, query playground only.
+  - Pro: unlimited entities, batch import/export, AI assistant.
+  - Enterprise: multi-user orgs, priority RPC, extended storage.
+- Usage-Based Pricing
+  - Charge per batch import / per query volume.
+  - Pay-as-you-go credits via stablecoins.
+- AI Add-Ons
+  - Sell credits for AI-powered query translation and data training.
+
+## 🛠️ Tech Stack
+
+- Next.js 15 (App Router)
+- shadcn/ui components
+- Tailwind CSS
+- EvilCharts for analytics
+- better-sqlite3 for collections metadata
+- golem-base-sdk for Golem DB interactions
+
+## 🤝 Contributing
+
+PRs welcome! Please open an issue for features or bug reports.
