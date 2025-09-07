@@ -1,7 +1,7 @@
 # Golem DB Studio
 
 A modern web interface for exploring and managing Golem DB entities.  
-Built with **Next.js 14**, **shadcn/ui**, and the **Golem Base TypeScript SDK**.
+Built with **Next.js 15**, **shadcn/ui**, and the **Golem Base TypeScript SDK**.
 
 ![Studio Dashboard](./public/hero-image.png)
 
