@@ -29,6 +29,7 @@ import {
   AlertDialogTitle,
   AlertDialogTrigger,
 } from "@/components/ui/alert-dialog";
+import { BatchImportDialog } from "@/components/batch-import-dialog";
 
 type Item = {
   entityKey: `0x${string}`;
@@ -148,6 +149,8 @@ export default function EntitiesPage() {
             <Search className="size-4" />
             Search
           </Button>
+          <BatchImportDialog onImported={load} />
+
           <CreateEntityDialog
             defaultCollection={collectionFilter || "note"}
             defaultBTL={1200}

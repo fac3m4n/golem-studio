@@ -1,6 +1,6 @@
 import { Annotation, GolemBaseCreate, GolemBaseUpdate } from "golem-base-sdk";
 import { randomUUID } from "crypto";
-import { getGolemClient, encoder, decoder, DEFAULT_COLLECTION } from "./golem";
+import { getGolemClient, encoder, decoder } from "./golem";
 
 export type EntityRow = {
   entityKey: `0x${string}`;
@@ -156,6 +156,67 @@ export async function createEntity(input: CreateInput) {
 
   const receipt = await client.createEntities(creates);
   return { id, receipt };
+}
+
+export async function createEntitiesBatch(input: {
+  collection: string;
+  items: any[]; // each item becomes payload.data
+  btl?: number;
+  extra?: Record<string, string | number>; // optional extra annotations (applied to all)
+  chunkSize?: number; // optional override, default 50
+}) {
+  const client = await getGolemClient();
+
+  const batchId = randomUUID();
+  const chunkSize = Math.max(1, Math.min(100, input.chunkSize ?? 50)); // conservative
+  const receipts: any[] = [];
+  let total = 0;
+
+  // pre-split into chunks to avoid huge txs
+  for (let i = 0; i < input.items.length; i += chunkSize) {
+    const chunk = input.items.slice(i, i + chunkSize);
+
+    const creates: GolemBaseCreate[] = chunk.map((data) => {
+      const id = randomUUID();
+      const version = 1;
+
+      // build annotations
+      const stringAnnotations = [
+        new Annotation("collection", input.collection),
+        new Annotation("app", "studio"),
+        new Annotation("id", id),
+        new Annotation("batchId", batchId),
+      ];
+      const numericAnnotations = [new Annotation("version", version)];
+
+      // apply global extra annotations (if any)
+      if (input.extra) {
+        for (const [k, v] of Object.entries(input.extra)) {
+          if (typeof v === "number")
+            numericAnnotations.push(new Annotation(k, v));
+          else stringAnnotations.push(new Annotation(k, String(v)));
+        }
+      }
+
+      return {
+        data: encoder.encode(JSON.stringify(data)),
+        btl: input.btl ?? 1200,
+        stringAnnotations,
+        numericAnnotations,
+      } as GolemBaseCreate;
+    });
+
+    const r = await client.createEntities(creates);
+    receipts.push(...r);
+    total += creates.length;
+  }
+
+  return {
+    batchId,
+    total,
+    receipts,
+    entityKeys: receipts.map((x) => x.entityKey).filter(Boolean),
+  };
 }
 
 /**

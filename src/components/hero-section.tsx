@@ -102,7 +102,7 @@ export const HeroSection = () => {
 
               <Button asChild size="lg">
                 <Link href="#">
-                  <span className="btn-label">Start Building</span>
+                  <span className="btn-label">Explore Studio</span>
                 </Link>
               </Button>
             </div>

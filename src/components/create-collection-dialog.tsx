@@ -12,6 +12,7 @@ import {
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { PlusIcon } from "lucide-react";
 
 const PRESETS = [
   "#3b82f6", // blue-500
@@ -62,7 +63,12 @@ export function CreateCollectionDialog({
   return (
     <Dialog open={open} onOpenChange={setOpen}>
       <DialogTrigger asChild>
-        {trigger ?? <Button>Create collection</Button>}
+        {trigger ?? (
+          <Button>
+            <PlusIcon className="size-4" />
+            Create
+          </Button>
+        )}
       </DialogTrigger>
       <DialogContent className="sm:max-w-md">
         <DialogHeader>
