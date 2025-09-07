@@ -24,6 +24,7 @@ import {
   Area,
   Cell,
 } from "recharts";
+import { RefreshCwIcon } from "lucide-react";
 
 type ByCollection = { name: string; color: string; count: number };
 type RecentItem = {
@@ -82,6 +83,7 @@ export default function DashboardPage() {
         <h1 className="text-xl font-semibold">Dashboard</h1>
         <div className="flex items-center gap-2">
           <Button variant="secondary" onClick={load} disabled={loading}>
+            <RefreshCwIcon className={loading ? "animate-spin" : ""} />
             {loading ? "Refreshing…" : "Refresh"}
           </Button>
         </div>
