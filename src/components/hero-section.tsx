@@ -100,7 +100,11 @@ export const HeroSection = () => {
                 tempora nam vitae, excepturi ducimus iste provident dolores.
               </p>
 
-              <Button asChild size="lg">
+              <Button
+                asChild
+                size="lg"
+                className="animate-bounce hover:animate-none"
+              >
                 <Link href="#">
                   <span className="btn-label">Explore Studio</span>
                 </Link>
